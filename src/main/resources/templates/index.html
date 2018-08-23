@@ -14,7 +14,7 @@
         var messages = [];
         //Get the messages
         setInterval(function() {
-            $.getJSON("http://0.0.0.0:8080/messages", function(data) {
+            $.getJSON("/messages", function(data) {
                 $.each(data, function( key, val ) {
                        if (messages.find(function(element) {
                                 return element.date == val.date && element.user == val.user;
@@ -22,12 +22,12 @@
                       ) {
                             messages.push(val);
                             $("#messages").append(
-                                "<div class='message'><div class='user'>" + val.user + "</div><div class='message'>" + val.message + "</div></div>"
+                                "<div class='message'><div class='user'>" + val.user + "</div><div class='message'>" + val.message + "</div></div><hr/>"
                             );
                    }
                 });
             });
-        }, 1000);
+        }, 3000);
     </script>
 </body>
 </html>

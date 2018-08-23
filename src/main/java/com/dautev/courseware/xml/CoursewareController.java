@@ -13,5 +13,9 @@ public class CoursewareController {
     public String index(Model model) {
         return "index";
     }
+    @GetMapping("/sender")
+    public String sender(Model model) {
+        return "sender";
+    }
 
 }

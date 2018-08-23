@@ -21,6 +21,8 @@ import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 import javax.xml.validation.Validator;
 import java.io.StringReader;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedHashMap;
@@ -36,9 +38,10 @@ public class CoursewareApi {
         return new ArrayList<Message>(messages.values());
     }
 
-    @RequestMapping(value = "/message", method = RequestMethod.POST, consumes = MediaType.APPLICATION_XML_VALUE)
-    public ResponseEntity postMessage(@RequestBody String message) {
+    @RequestMapping(value = "/message", method = RequestMethod.POST)
+    public ResponseEntity postMessage(@RequestBody String message) throws UnsupportedEncodingException {
         //Serialization intentionally placed here (:
+        message = URLDecoder.decode(message, "UTF-8");
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         DocumentBuilder builder;
         try {

@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>XML Chat sender (:</title>
+    <script
+            src="https://code.jquery.com/jquery-3.3.1.min.js"
+            integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+            crossorigin="anonymous"></script>
+    <script
+            src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.39.2/codemirror.js"
+            crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.39.2/mode/xml/xml.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.39.2/addon/fold/xml-fold.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.39.2/addon/hint/xml-hint.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.39.2/addon/hint/show-hint.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.39.2/addon/hint/show-hint.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.39.2/codemirror.css" />
+</head>
+<body>
+    <textarea cols="20" rows="10" id="code" name="code"></textarea>
+    <button onclick="send()">Събмит</button>
+    <div id="messages"style="color:red"></div>
+    <script>
+    function send() {
+        $.ajax({
+            method: 'POST',
+            url: '/message',
+            data: editor.getValue(),
+            contentType: 'application/xml'
+        })
+        .success(function(response) {
+            $("#messages").html("<b> Реде. </b>");
+        })
+        .fail(function(response) {
+            $("#messages").html("<b>" + (typeof(response.responseJSON) !== "undefined" ? response.responseJSON.message : response.responseText) + "</b>");
+        });
+    }
+    function completeAfter(cm, pred) {
+        var cur = cm.getCursor();
+        if (!pred || pred()) setTimeout(function() {
+            if (!cm.state.completionActive)
+                cm.showHint({
+                    completeSingle: false
+                });
+        }, 100);
+        return CodeMirror.Pass;
+    }
+
+    function completeIfAfterLt(cm) {
+        return completeAfter(cm, function() {
+            var cur = cm.getCursor();
+            return cm.getRange(CodeMirror.Pos(cur.line, cur.ch - 1), cur) == "<";
+        });
+    }
+
+    function completeIfInTag(cm) {
+        return completeAfter(cm, function() {
+            var tok = cm.getTokenAt(cm.getCursor());
+            if (tok.type == "string" && (!/['"]/.test(tok.string.charAt(tok.string.length - 1)) || tok.string.length == 1)) return false;
+            var inner = CodeMirror.innerMode(cm.getMode(), tok.state).state;
+            return inner.tagName;
+        });
+    }
+    var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
+        mode: "xml",
+        lineNumbers: true,
+        extraKeys: {
+            "'<'": completeAfter,
+            "'/'": completeIfAfterLt,
+            "' '": completeIfInTag,
+            "'='": completeIfInTag,
+            "Ctrl-Space": "autocomplete"
+        }
+    });
+    </script>
+</body>
+</html>
