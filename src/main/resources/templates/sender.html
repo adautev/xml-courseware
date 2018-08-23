@@ -29,7 +29,7 @@
             data: editor.getValue(),
             contentType: 'application/xml'
         })
-        .success(function(response) {
+        .done(function(response) {
             $("#messages").html("<b> Реде. </b>");
         })
         .fail(function(response) {
