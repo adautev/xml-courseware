@@ -21,6 +21,7 @@ import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 import javax.xml.validation.Validator;
 import java.io.StringReader;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedHashMap;
 
@@ -28,11 +29,11 @@ import java.util.LinkedHashMap;
 public class CoursewareApi {
     private static final LinkedHashMap<Date,Message> messages = new LinkedHashMap<Date, Message>();
     static {
-        messages.put(new Date(), new Message("Andrey", "You will respect my Authoritaaay!"));
+        messages.put(new Date(), new Message(new Date(), "Andrey", "You will respect my Authoritaaay!"));
     }
     @RequestMapping(value = "/messages", method = RequestMethod.GET)
-    public LinkedHashMap<Date,Message> getMessages() {
-        return messages;
+    public ArrayList<Message> getMessages() {
+        return new ArrayList<Message>(messages.values());
     }
 
     @RequestMapping(value = "/message", method = RequestMethod.POST, consumes = MediaType.APPLICATION_XML_VALUE)
@@ -53,6 +54,7 @@ public class CoursewareApi {
             validator.validate(new DOMSource(document));
 
             Message messageObject = new Message(
+                    new Date(),
                     document.getElementsByTagName("user").item(0).getTextContent(),
                     document.getElementsByTagName("message").item(0).getTextContent()
             );
